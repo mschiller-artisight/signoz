@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import * as Sentry from '@sentry/react';
 import { Color } from '@signozhq/design-tokens';
 import { Button, Drawer, Empty, Skeleton, Typography } from 'antd';
 import logEvent from 'api/common/logEvent';
+import { REACT_QUERY_KEY } from 'constants/reactQueryKeys';
 import { useGetMetricDetails } from 'hooks/metricsExplorer/useGetMetricDetails';
 import { useQueryBuilder } from 'hooks/queryBuilder/useQueryBuilder';
 import { useQueryOperations } from 'hooks/queryBuilder/useQueryBuilderOperations';
@@ -107,6 +109,11 @@ function Inspect({
 		timeAggregatedSeriesMap,
 		reset,
 	} = useInspectMetrics(appliedMetricName);
+
+	const queryClient = useQueryClient();
+	const handleCancelInspectQuery = useCallback(() => {
+		queryClient.cancelQueries(REACT_QUERY_KEY.GET_INSPECT_METRICS_DETAILS);
+	}, [queryClient]);
 
 	const handleDispatchMetricInspectionOptions = useCallback(
 		(action: MetricInspectionAction): void => {
@@ -238,6 +245,8 @@ function Inspect({
 						inspectMetricsTimeSeries={inspectMetricsTimeSeries}
 						currentQuery={currentQueryData}
 						setCurrentQuery={setCurrentQueryData}
+						isLoadingQueries={isInspectMetricsLoading}
+						handleCancelQuery={handleCancelInspectQuery}
 					/>
 				</div>
 				<div className="inspect-metrics-content-second-col">
