@@ -409,12 +409,12 @@ func TestGetSelectedSpans_UncollapsedTracking(t *testing.T) {
 // GetSelectedSpans — span metadata
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Test to check if Level, HasChildren, HasSiblings, and SubTreeNodeCount are populated correctly.
+// Test to check if Level, HasChildren, and SubTreeNodeCount are populated correctly.
 //
-//	root          level=0, hasChildren=true,  hasSiblings=false, subTree=4
-//	  child1      level=1, hasChildren=true,  hasSiblings=true,  subTree=2
-//	    grandchild level=2, hasChildren=false, hasSiblings=false, subTree=1
-//	  child2      level=1, hasChildren=false, hasSiblings=false, subTree=1
+//	root          level=0, hasChildren=true,  subTree=4
+//	  child1      level=1, hasChildren=true,  subTree=2
+//	    grandchild level=2, hasChildren=false, subTree=1
+//	  child2      level=1, hasChildren=false, subTree=1
 func TestGetSelectedSpans_SpanMetadata(t *testing.T) {
 	root := mkSpan("root", "svc",
 		mkSpan("child1", "svc", mkSpan("grandchild", "svc")),
@@ -432,13 +432,12 @@ func TestGetSelectedSpans_SpanMetadata(t *testing.T) {
 		spanID          string
 		wantLevel       uint64
 		wantHasChildren bool
-		wantHasSiblings bool
 		wantSubTree     uint64
 	}{
-		{"root", 0, true, false, 4},
-		{"child1", 1, true, true, 2},
-		{"child2", 1, false, false, 1},
-		{"grandchild", 2, false, false, 1},
+		{"root", 0, true, 4},
+		{"child1", 1, true, 2},
+		{"child2", 1, false, 1},
+		{"grandchild", 2, false, 1},
 	}
 
 	for _, tc := range tests {
@@ -446,7 +445,6 @@ func TestGetSelectedSpans_SpanMetadata(t *testing.T) {
 			s := byID[tc.spanID]
 			assert.Equal(t, tc.wantLevel, s.Level)
 			assert.Equal(t, tc.wantHasChildren, s.HasChildren)
-			assert.Equal(t, tc.wantHasSiblings, s.HasSiblings)
 			assert.Equal(t, tc.wantSubTree, s.SubTreeNodeCount)
 		})
 	}
